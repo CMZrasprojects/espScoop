@@ -94,10 +94,9 @@ Stockage sur la uSD
 ## Audio Board :
 ### Teensy + Teensy Audio Board + Arduino IDE
  Test de base OK : Sketch Hardware_Test_TeensyAudioBoard_passthrough
- Test en 48 kHz :
-
- 
-### Arduino IDE + Audio Tools
+### Esp32 + Teensy Audioboard
+ Pas de librairie trouvé pour le SGTL5000
+ Essai avec https://github.com/sinneb/esp32sampler adapté pour "esp32s3box"
 ### Tests 48 kHz
 ### Tests PureData sur esp32
 espd ou hvcc
