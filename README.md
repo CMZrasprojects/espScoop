@@ -10,7 +10,7 @@ Contrôle complet des paramètres audio et de connectivité par une page web acc
 
 ## Hardware
  
-  MCU : 
+MCU : 
    - Lilygo T-Eth-Lite (esp32-s3-WROOM-1)
       240 MHz / 16MB Flash / 8MB PSRAM / uSD / PoE
       Wifi / BLE / Ethernet (W5500 SPI) / i2c / i2s
@@ -24,18 +24,18 @@ Contrôle complet des paramètres audio et de connectivité par une page web acc
 
    - Esp32 4G LTE Dev Kit ?
 
-  Connectivité 4G LTE Cat 4 : 
+Connectivité 4G LTE Cat 4 : 
     - Hat esp32 / Hat Raspberry ?
     - Réseau via SPI ou TinyUsb ?
     - Sur MCU Additionnel ou le même ?
         
-  Ecran Controle OLED (option) : 64x64 i2c
-  Boutons : 
+Ecran Controle OLED (option) : 64x64 i2c
+ Boutons : 
     - On / Off
     - Controle d'un menu sur OLED (option)
   
 
-  Connectivité Audio :
+Connectivité Audio :
      - Teensy Audio Board :
          Codec SGTL5000 / Contrôle i2c / Audio i2s
          Entrées et sorties Ligne Stéréo
@@ -44,55 +44,59 @@ Contrôle complet des paramètres audio et de connectivité par une page web acc
          Carte SD SPI / Extension RAM ?
       - A Trouver : Board 24bits / 48 kHz / Analogique ou AES
 
-  Alimentation :
+Alimentation :
       - 5V sur Batterie USB
       - 12V sur XLR-4 ou Hirose-4 + Convertisseur 12V-5V
 
 ## Software
-    -Arduino IDE
-    -Visual Studio
-    -idf.py
+ - Arduino IDE
+ - Visual Studio
+ - idf.py
     
 ### Audio
-    Communication avec la Board : AudioTools pour Arduino
-    Conception Audio (mixage & AoIP) : PureData pour Arduino
-       -espd
-       -hvcc
+Communication avec la Board : AudioTools pour Arduino
+Conception Audio (mixage & AoIP) : PureData pour Arduino
+ - espd
+ - hvcc
     Record local ?
     
 ### AoIP
-    Audio Over OSC (AOO)
-      Bibliotheque C/C++
-      Bibliotheque esp32 (en developpement)
-      Bibliotheque external PureData
+Audio Over OSC (AOO)
+ Bibliotheque C/C++
+ Bibliotheque esp32 (en developpement)
+ Bibliotheque external PureData
 
-    Connexions à la volée et multiples, choix du CODEC, adaptation du buffer, serveur 
+Connexions à la volée et multiples, choix du CODEC, adaptation du buffer, serveur 
 
-    Monitoring sur la page Web ?
+Monitoring sur la page Web ?
   
 ### Réseau
-    WebServer
-    VPN Husarnet
-    Page html : Visualisation et changement des paramètres ...
-       - Réseau
-       - Audio Board : Niveaux, Mixage
-       - AoIP : Encodage, Canaux, host, ID, Buffer
-       - Liste des appareils en réseau
-       - Raccourcis de connexions entre appareils (Grille ?)
+WebServer
+VPN Husarnet
+Page html : Visualisation et changement des paramètres ...
+ - Réseau
+ - Audio Board : Niveaux, Mixage
+  - AoIP : Encodage, Canaux, host, ID, Buffer
+  - Liste des appareils en réseau
+  - Raccourcis de connexions entre appareils (Grille ?)
                     
-    Menu CSS / JS ; façon uScoop
-    Stockage sur la uSD
+Menu CSS / JS ; façon uScoop
+Stockage sur la uSD
       
 ### Page Web <> Esp32
     JSON
 
 ### Sauvegarde des paramètres
-    - Bibliotheque Arduino IDE "Preferences" > NVS
-    - JSON sur la carte SD ?
+ - Bibliotheque Arduino IDE "Preferences" > NVS
+ - JSON sur la carte SD ?
     
 # Developpement
 ## Audio Board :
-Tests Teensy Audio Board + esp-32
+### Teensy + Teensy Audio Board + Arduino IDE
+ Test de base OK : Sketch Hardware_Test_TeensyAudioBoard_passthrough
+ Test en 48 kHz :
+
+ 
 ### Arduino IDE + Audio Tools
 ### Tests 48 kHz
 ### Tests PureData sur esp32
