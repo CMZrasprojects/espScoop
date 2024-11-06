@@ -49,9 +49,12 @@ Alimentation :
       - 12V sur XLR-4 ou Hirose-4 + Convertisseur 12V-5V
 
 ## Software
- - Arduino IDE
+ - Arduino IDE <<<<
+    > pratique et + comprehensible
  - Visual Studio
+    > usine a gaz... puissant... compilation + rapide... des heures a etudier le manuel
  - idf.py
+    > yen a marre des lignes de code
     
 ### Audio
 Communication avec la Board : AudioTools pour Arduino
@@ -71,7 +74,7 @@ Connexions à la volée et multiples, choix du CODEC, adaptation du buffer, serv
 Monitoring sur la page Web ?
   
 ### Réseau
-WebServer
+WebServer 
 VPN Husarnet
 Page html : Visualisation et changement des paramètres ...
  - Réseau
@@ -84,11 +87,11 @@ Menu CSS / JS ; façon uScoop
 Stockage sur la uSD
       
 ### Page Web <> Esp32
-    JSON
+    html Get / Post + JSON <<<<<
 
 ### Sauvegarde des paramètres
  - Bibliotheque Arduino IDE "Preferences" > NVS
- - JSON sur la carte SD ?
+ - JSON sur la carte SD <<<<
     
 # Developpement
 ## Audio Board :
@@ -97,6 +100,7 @@ Stockage sur la uSD
 ### Esp32 + Teensy Audioboard
  Pas de librairie trouvé pour le SGTL5000
  Essai avec https://github.com/sinneb/esp32sampler adapté pour "esp32s3box"
+ Essai d'integration direct du driver
 ### Tests 48 kHz
 ### Tests PureData sur esp32
 espd ou hvcc
@@ -112,8 +116,24 @@ WebServer OK
 Husarnet OK
 Page Html sur SD OK
 Navigation OK
-Fichier d'échange JSON OK (A COMPLETER)
+Fichier d'échange JSON OK
+ Mettre a jour et tester recuperation + sauvegarde en fonction des avancees sur la sauvegarde en JSON
+
 
 ## Sauvegarde
 Paramètres Réseau (preference nvs) OK
-Paramètres Audio (JSON) -- 
+ Facile, mais 1/2ko max
+ 
+Paramètres complets (JSON sur Sd) -- EN COURS
+
+ Taille infinie selon SD
+ Creer un config.json + default_config.json pour "factory reset"
+ Bibliotheque ArduinoJson.h
+ 
+ Fonction readall() + Fonction write(parametre, valeur) pour chaque data_type
+ 
+ OU C++ structure
+  Pas beaucoup plus simple, sauvegarde de tous les parametres a chaque fois
+  
+ OU Classe de configuration (-> creation dune bibliotheque ?)
+  plus fastidieux mais code plus clair, et personnalisavle et evolutif
