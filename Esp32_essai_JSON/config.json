@@ -1,0 +1,44 @@
+{
+    "system": {
+        "device_name": "Esp32-Cmz-1"
+    },
+    "network": {
+        "interface": {
+            "ethernet": {
+                "status": 1,
+                "dhcp": 1,
+                "address": {
+                    "ipv4": "192.168.1.51",
+                    "masque": "255.255.255.0",
+                    "passerelle": "192.168.1.1"
+                }
+            },
+            "wifi": {
+                "status": 1,
+                "dhcp": 1,
+                "address": {
+                    "ipv4": "192.168.1.51",
+                    "masque": "255.255.255.0",
+                    "passerelle": "192.168.1.1"
+                },
+                "wifiList": [
+                    {
+                        "ssid": "iPhone de Clement",
+                        "password": "clementiphone"
+                    },
+                    {
+                        "ssid": "Freebox-645D30",
+                        "password": "dicar**-herebat@&-fundatur.-existas"
+                    }
+                ]
+            },
+            "lte": {
+                "status": 0
+            }
+        }
+    },
+    "audio": {
+        "headphoneLevel" : 0.5,
+        "samplingRate" : 48000
+    }   
+}
