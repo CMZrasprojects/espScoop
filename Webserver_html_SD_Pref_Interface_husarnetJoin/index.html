@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Réseau Ethernet</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function toggleIPFields() {
+            const isDHCPEnabled = document.getElementById("dhcpCheckbox").checked;
+            document.getElementById("ipSettings").style.display = isDHCPEnabled ? "none" : "block";
+            document.getElementById("connectionMode").textContent = isDHCPEnabled ? "Mode DHCP Activé" : "Mode IP Fixe Activé";
+        }
+
+        function validateForm() {
+            const ipFields = ['ip', 'gateway', 'subnet'];
+            let valid = true;
+
+            ipFields.forEach(field => {
+                const inputs = document.querySelectorAll(`input[name="${field}[]"]`);
+                inputs.forEach(input => {
+                    const value = parseInt(input.value, 10);
+                    if (isNaN(value) || value < 0 || value > 255) {
+                        valid = false;
+                        input.style.borderColor = "red";
+                    } else {
+                        input.style.borderColor = "";
+                    }
+                });
+            });
+
+            if (!valid) {
+                alert("Veuillez entrer des valeurs valides (0-255) pour l'IP, la gateway et le subnet.");
+            }
+            return valid;
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll(".tab");
+            tabs.forEach(tab => {
+                tab.style.display = "none";
+            });
+            document.getElementById(tabName).style.display = "block";
+        }
+
+        function saveWiFiSettings() {
+            const wifiEnabled = document.getElementById("wifiCheckbox").checked;
+            const ssid = document.getElementById("wifiSSIDInput").value;
+            const password = document.getElementById("wifiPasswordInput").value;
+
+            fetch("/setWiFiSettings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `status=${wifiEnabled ? 'on' : 'off'}&ssid=${ssid}&password=${password}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                alert("Paramètres WiFi enregistrés !");
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de l'enregistrement des paramètres WiFi.");
+            });
+        }
+
+        window.onload = function() {
+            toggleIPFields();
+            showTab("statusTab"); // Affiche l'onglet de statut par défaut
+
+            // Récupérer les informations de l'ESP32
+            fetch("/getNetworkStatus")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("ethIP").textContent = data.ethIP;
+                    document.getElementById("ethGateway").textContent = data.ethGateway;
+                    document.getElementById("ethSubnet").textContent = data.ethSubnet;
+                    document.getElementById("wifiIP").textContent = data.wifiIP;
+                    document.getElementById("wifiGateway").textContent = data.wifiGateway;
+                    document.getElementById("wifiSubnet").textContent = data.wifiSubnet;
+                    document.getElementById("wifiSSID").textContent = data.wifiSSID;
+                });
+        };
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .tab {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .tab-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        .tab-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 48%; /* Deux colonnes de largeur égale */
+        }
+    </style>
+</head>
+<body>
+    <h1>Configuration Réseau Ethernet</h1>
+    <div class="tab-buttons">
+        <button onclick="showTab('statusTab')">Status</button>
+        <button onclick="showTab('connectionsTab')">Connections</button>
+        <button onclick="showTab('audioTab')">Audio</button>
+        <button onclick="showTab('networkTab')">Network</button>
+    </div>
+
+    <div id="statusTab" class="tab">
+        <div class="card">
+            <h2>Informations Ethernet</h2>
+            <p><strong>Adresse IP :</strong> <span id="ethIP"></span></p>
+            <p><strong>Passerelle :</strong> <span id="ethGateway"></span></p>
+            <p><strong>Masque :</strong> <span id="ethSubnet"></span></p>
+        </div>
+        <div class="card">
+            <h2>Informations WiFi</h2>
+            <p><strong>Adresse IP :</strong> <span id="wifiIP"></span></p>
+            <p><strong>Passerelle :</strong> <span id="wifiGateway"></span></p>
+            <p><strong>Masque :</strong> <span id="wifiSubnet"></span></p>
+            <p><strong>SSID :</strong> <span id="wifiSSID"></span></p>
+        </div>
+        <div class="card">
+            <h2>Connexion</h2>
+            <p>Infos à venir...</p>
+        </div>
+        <div class="card">
+            <h2>Audio</h2>
+            <p>Infos à venir...</p>
+        </div>
+    </div>
+
+    <div id="connectionsTab" class="tab">
+        <h2>Connections</h2>
+        <p>Paramètres de connexions à venir...</p>
+    </div>
+
+    <div id="audioTab" class="tab">
+        <h2>Audio</h2>
+        <p>Paramètres Audio à venir...</p>
+    </div>
+
+    <div id="networkTab" class="tab">
+        <h2>Network</h2>
+        <div class="two-columns">
+            <div class="column">
+                <div class="card">
+                    <h3>Ethernet</h3>
+                    <p id="connectionMode">Mode DHCP Activé</p>
+                    <form action="/setNetwork" method="POST" onsubmit="return validateForm()">
+                        <label for="dhcpCheckbox">DHCP :</label>
+                        <input type="checkbox" id="dhcpCheckbox" name="dhcp" onclick="toggleIPFields()" checked><br>
+                        
+                        <div id="ipSettings" style="display: none;">
+                            <label>IP :</label>
+                            <div class="ip-input">
+                                <input type="number" name="ip0" min="0" max="255" value="0" required>
+                                <input type="number" name="ip1" min="0" max="255" value="0" required>
+                                <input type="number" name="ip2" min="0" max="255" value="0" required>
+                                <input type="number" name="ip3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Gateway :</label>
+                            <div class="ip-input">
+                                <input type="number" name="gateway0" min="0" max="255" value="0" required>
+                                <input type="number" name="gateway1" min="0" max="255" value="0" required>
+                                <input type="number" name="gateway2" min="0" max="255" value="0" required>
+                                <input type="number" name="gateway3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Subnet :</label>
+                            <div class="ip-input">
+                                <input type="number" name="subnet0" min="0" max="255" value="0" required>
+                                <input type="number" name="subnet1" min="0" max="255" value="0" required>
+                                <input type="number" name="subnet2" min="0" max="255" value="0" required>
+                                <input type="number" name="subnet3" min="0" max="255" value="0" required>
+                            </div>
+                        </div>
+
+                        <input type="submit" value="Enregistrer">
+                    </form>
+                </div>
+            </div>
+            <div class="column">
+                <div class="card">
+                    <h3>WiFi</h3>
+                    <label>Activer WiFi :</label>
+                    <input type="checkbox" id="wifiCheckbox"><br>
+                    <label>SSID :</label>
+                    <input type="text" id="wifiSSIDInput" required><br>
+                    <label>Mot de passe :</label>
+                    <input type="password" id="wifiPasswordInput" required><br>
+                    <input type="button" value="Enregistrer" onclick="saveWiFiSettings()">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
