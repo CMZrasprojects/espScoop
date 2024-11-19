@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Réseau Ethernet</title>
+    <script>
+        function getStatus() {
+            // Récupérer les informations de l'ESP32
+            fetch("/getStatus")
+            .then(response => response.json())
+            .then(data => {
+                    document.getElementById("deviceName").textContent = data.deviceName;
+                    document.getElementById("ethernetStatus").textContent = data.ethernetStatus ? "Actif" : "Inactif";
+                    document.getElementById("ethernetDhcp").textContent = data.ethernetDhcp ? "Actif" : "Inactif";
+                    document.getElementById("ethernetIpv4").textContent = data.ethernetIpv4;
+                    document.getElementById("ethernetMasque").textContent = data.ethernetMasque;
+                    document.getElementById("ethernetPasserelle").textContent = data.ethernetPasserelle;
+                    document.getElementById("wifiStatus").textContent = data.wifiStatus ? "Actif" : "Inactif";
+                    document.getElementById("wifiDhcp").textContent = data.wifiDhcp ? "Actif" : "Inactif";
+                    document.getElementById("wifiIpv4").textContent = data.wifiIpv4;
+                    document.getElementById("wifiMasque").textContent = data.wifiMasque;
+                    document.getElementById("wifiPasserelle").textContent = data.wifiPasserelle;
+                    document.getElementById("wifiSsid").textContent = data.wifiSsid;
+                    document.getElementById("husarnetIpv6").textContent = data.husarnetIpv6;
+            })
+        }
+        
+        function toggleEthernetIpFields() {
+            const isEthernetDHCPEnabled = document.getElementById("ethernetDhcpCheckbox").checked;
+            document.getElementById("ethernetIpSettings").style.display = isEthernetDHCPEnabled ? "none" : "block";
+            document.getElementById("ethernetConnectionMode").textContent = isEthernetDHCPEnabled ? "Ethernet en Mode DHCP" : "Ethernet en Mode IP Fixe :";
+        }
+
+        function toggleWifiIpFields() {
+            const isWifiDHCPEnabled = document.getElementById("wifiDhcpCheckbox").checked;
+            document.getElementById("wifiIpSettings").style.display = isWifiDHCPEnabled ? "none" : "block";
+            document.getElementById("wifiConnectionMode").textContent = isWifiDHCPEnabled ? "Wifi en Mode DHCP" : "Wifi en Mode IP Fixe :";
+        }
+
+        function validateForm() {
+            const ipFields = ['ip', 'gateway', 'subnet'];
+            let valid = true;
+
+            ipFields.forEach(field => {
+                const inputs = document.querySelectorAll(`input[name="${field}[]"]`);
+                inputs.forEach(input => {
+                    const value = parseInt(input.value, 10);
+                    if (isNaN(value) || value < 0 || value > 255) {
+                        valid = false;
+                        input.style.borderColor = "red";
+                    } else {
+                        input.style.borderColor = "";
+                    }
+                })
+            })
+
+            if (!valid) {
+                alert("Veuillez entrer des valeurs valides (0-255) pour l'IP, la gateway et le subnet.");
+            }
+            return valid;
+        }
+
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll(".tab");
+            tabs.forEach(tab => {
+                tab.style.display = "none";
+            })
+            document.getElementById(tabName).style.display = "block";
+        }
+
+        function setWiFiSettings() {
+            const wifiEnabled = document.getElementById("wifiCheckbox").checked;
+            const newWifiSsid = document.getElementById("wifiSSIDInput").value;
+            const password = document.getElementById("wifiPassword").value;
+            const wifiDhcpEnabled = document.getElementById("wifiDhcpCheckbox").checked;
+            // Extraire l'adresse IP
+            const newWifiIpv4 = `${document.querySelector("[name='wifiIp0']").value}.${document.querySelector("[name='wifiIp1']").value}.${document.querySelector("[name='wifiIp2']").value}.${document.querySelector("[name='wifiIp3']").value}`;
+            // Extraire la passerelle
+            const newWifiPasserelle = `${document.querySelector("[name='wifiGateway0']").value}.${document.querySelector("[name='wifiGateway1']").value}.${document.querySelector("[name='wifiGateway2']").value}.${document.querySelector("[name='wifiGateway3']").value}`;
+            // Extraire le masque de sous-réseau
+            const newWifiMasque = `${document.querySelector("[name='wifiSubnet0']").value}.${document.querySelector("[name='wifiSubnet1']").value}.${document.querySelector("[name='wifiSubnet2']").value}.${document.querySelector("[name='wifiSubnet3']").value}`;
+            // Construire la requête
+            const bodyContent = `status=${wifiEnabled ? 'on' : 'off'}&newWifiSsid=${newWifiSsid}&newWifiPassword=${password}&wifiDhcpEnabled=${wifiDhcpEnabled ? 'on' : 'off'}&wifiIpv4=${newWifiIpv4}&wifiPasserelle=${newWifiPasserelle}&wifiMasque=${newWifiMasque}`;
+
+            fetch("/setWiFiSettings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: bodyContent
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                alert("Paramètres WiFi enregistrés !");
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de l'enregistrement des paramètres WiFi.");
+            })
+        }
+        function saveEthernetSettings() {
+            const ethernetDhcpEnabled = document.getElementById("ethernetDhcpCheckbox").checked;
+            // Extraire l'adresse IP
+            const newEthernetIpv4 = `${document.querySelector("[name='ethernetIp0']").value}.${document.querySelector("[name='ethernetIp1']").value}.${document.querySelector("[name='ethernetIp2']").value}.${document.querySelector("[name='ethernetIp3']").value}`;
+            // Extraire la passerelle
+            const newEthernetPasserelle = `${document.querySelector("[name='ethernetGateway0']").value}.${document.querySelector("[name='ethernetGateway1']").value}.${document.querySelector("[name='ethernetGateway2']").value}.${document.querySelector("[name='ethernetGateway3']").value}`;
+            // Extraire le masque de sous-réseau
+            const newEthernetMasque = `${document.querySelector("[name='ethernetSubnet0']").value}.${document.querySelector("[name='ethernetSubnet1']").value}.${document.querySelector("[name='ethernetSubnet2']").value}.${document.querySelector("[name='ethernetSubnet3']").value}`;
+            // Construire la requête
+            const bodyContent = `ethernetDhcpEnabled=${ethernetDhcpEnabled ? 'on' : 'off'}&ethernetIpv4=${newEthernetIpv4}&ethernetPasserelle=${newEthernetPasserelle}&ethernetMasque=${newEthernetMasque}`;
+
+            fetch("/setEthernetSettings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: bodyContent
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                alert("Paramètres Ethernet enregistrés !");
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Erreur lors de l'enregistrement des paramètres Ethernet.");
+            })
+        }
+
+        window.onload = function() {
+            toggleEthernetIpFields();
+            toggleWifiIpFields();
+            showTab("statusTab"); // Affiche l'onglet de statut par défaut
+            setTimeout(function() {
+                getStatus(); // Premier appel après 10 secondes
+                setInterval(getStatus, 10000); // Appels répétés toutes les 10 secondes après le premier
+            }, 10000);
+        }
+
+
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .tab {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .tab-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+
+        .tab-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .two-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 48%; /* Deux colonnes de largeur égale */
+        }
+    </style>
+</head>
+<body>
+    <h1>Configuration EspScoop</h1>
+    <div class="tab-buttons">
+        <button onclick="showTab('statusTab')">Status</button>
+        <button onclick="showTab('connectionsTab')">Connections</button>
+        <button onclick="showTab('audioTab')">Audio</button>
+        <button onclick="showTab('networkTab')">Network</button>
+    </div>
+
+    <div id="statusTab" class="tab">
+        <div class="card">
+            <h2>Accessibilité</h2>
+            <p><strong>Nom sur le réseau local :</strong> <span id="deviceName"></span></p>
+            <p><strong>Adresse IPv6 Husarnet :</strong> <span id="husarnetIpv6"></span></p>
+        </div>
+        <div class="card">
+            <h2>Statut Autre 1</h2>
+            <p>Infos à venir...</p>
+        </div>
+        <div class="card">
+            <h2>Statut Autre 2</h2>
+            <p>Infos à venir...</p>
+        </div>
+        <div class="card">
+            <h2>Statut Autre 3</h2>
+            <p>Infos à venir...</p>
+        </div>
+        <div class="card">
+            <h2>Statut Autre 4</h2>
+            <p>Infos à venir...</p>
+        </div>
+    </div>
+
+    <div id="connectionsTab" class="tab">
+        <h2>Connections</h2>
+        <p>Paramètres de connexions à venir...</p>
+    </div>
+
+    <div id="audioTab" class="tab">
+        <h2>Audio</h2>
+        <p>Paramètres Audio à venir...</p>
+    </div>
+
+    <div id="networkTab" class="tab">
+        <h2>Network</h2>
+        <div class="two-columns">
+            <div class="column">
+                <div class="card">
+                    <h3>WiFi</h3>
+                    <label>Activer WiFi :</label>
+                    <input type="checkbox" id="wifiCheckbox"><br>
+                    <label>SSID :</label>
+                    <input type="text" id="wifiSSIDInput" required><br>
+                    <label>Mot de passe :</label>
+                    <input type="password" id="wifiPassword" required><br>
+                     
+                    <p id="wifiConnectionMode">Mode DHCP Activé</p>
+                    <form action="/setNetwork" method="POST" onsubmit="return validateForm()">
+                        <label for="wifiDhcpCheckbox">DHCP :</label>
+                        <input type="checkbox" id="wifiDhcpCheckbox" name="wifiDhcp" onclick="toggleWifiIpFields()" checked><br>
+                        
+                        <div id="wifiIpSettings" style="display: none;">
+                            <label>Adresse IPv4 :</label>
+                            <div class="ip-input">
+                                <input type="number" name="wifiIp0" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiIp1" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiIp2" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiIp3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Passerelle :</label>
+                            <div class="ip-input">
+                                <input type="number" name="wifiGateway0" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiGateway1" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiGateway2" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiGateway3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Masque de sous-réseau :</label>
+                            <div class="ip-input">
+                                <input type="number" name="wifiSubnet0" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiSubnet1" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiSubnet2" min="0" max="255" value="0" required>
+                                <input type="number" name="wifiSubnet3" min="0" max="255" value="0" required>
+                            </div>
+                        </div>
+                    </form>
+                    <input type="button" value="Enregistrer" onclick="setWiFiSettings()">
+                </div>
+                <div class="card">
+                    <h3>Ethernet</h3>
+                    <p id="ethernetConnectionMode">Mode DHCP Activé</p>
+                    <form action="/setNetwork" method="POST" onsubmit="return validateForm()">
+                        <label for="ethernetDhcpCheckbox">DHCP :</label>
+                        <input type="checkbox" id="ethernetDhcpCheckbox" name="ethernetDhcp" onclick="toggleEthernetIpFields()" checked><br>
+                        
+                        <div id="ethernetIpSettings" style="display: none;">
+                            <label>Adresse IPv4 :</label>
+                            <div class="ip-input">
+                                <input type="number" name="ethIp0" min="0" max="255" value="0" required>
+                                <input type="number" name="ethIp1" min="0" max="255" value="0" required>
+                                <input type="number" name="ethIp2" min="0" max="255" value="0" required>
+                                <input type="number" name="ethIp3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Passerelle :</label>
+                            <div class="ip-input">
+                                <input type="number" name="ethGateway0" min="0" max="255" value="0" required>
+                                <input type="number" name="ethGateway1" min="0" max="255" value="0" required>
+                                <input type="number" name="ethGateway2" min="0" max="255" value="0" required>
+                                <input type="number" name="ethGateway3" min="0" max="255" value="0" required>
+                            </div>
+
+                            <label>Masque de sous-réseau :</label>
+                            <div class="ip-input">
+                                <input type="number" name="ethSubnet0" min="0" max="255" value="0" required>
+                                <input type="number" name="ethSubnet1" min="0" max="255" value="0" required>
+                                <input type="number" name="ethSubnet2" min="0" max="255" value="0" required>
+                                <input type="number" name="ethSubnet3" min="0" max="255" value="0" required>
+                            </div>
+                        </div>
+                    </form>
+                    <input type="button" value="Enregistrer" onclick="saveEthernetSettings()">
+                </div>
+            </div>
+            <div class="column">
+                <div class="card">
+                    <h2>Statut Wifi</h2>
+                    <p><strong>Wifi Actif :</strong> <span id="wifiStatus"></span></p>
+                    <p><strong>Réseau connecté (SSID) :</strong> <span id="wifiSsid"></span></p>
+                    <p><strong>DHCP Actif :</strong> <span id="wifiDhcp"></span></p>
+                    <p><strong>Adresse IPv4 :</strong> <span id="wifiIpv4"></span></p>
+                    <p><strong>Masque de sous réseau :</strong> <span id="wifiMasque"></span></p>
+                    <p><strong>Passerelle :</strong> <span id="wifiPasserelle"></span></p>
+                </div>
+                <div class="card">
+                    <h2>Statut Ethernet</h2>
+                    <p><strong>Ethernet Actif :</strong> <span id="ethernetStatus"></span></p>
+                    <p><strong>DHCP Actif :</strong> <span id="ethernetDhcp"></span></p>
+                    <p><strong>Adresse IPv4 :</strong> <span id="ethernetIpv4"></span></p>
+                    <p><strong>Masque de sous réseau :</strong> <span id="ethernetMasque"></span></p>
+                    <p><strong>Passerelle :</strong> <span id="ethernetPasserelle"></span></p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
